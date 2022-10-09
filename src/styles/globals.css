@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-gray-900 selection:bg-transparent selection:text-lime-300;
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus {
+  @apply outline-double outline-lime-300 rounded;
+}
+
+::-webkit-scrollbar {
+  @apply bg-cyan-900 w-1;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-cyan-400 rounded hover:bg-green-300;
+}
+
+img,
+svg {
+  @apply pointer-events-none select-none;
+}
