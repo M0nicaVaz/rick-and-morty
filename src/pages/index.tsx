@@ -1,16 +1,68 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+import Link from 'next/link';
+import { GetStaticProps } from 'next';
+import { useState, useEffect } from 'react';
+
 import Head from 'next/head';
 import Image from 'next/future/image';
 
+import { api } from '../services/api';
 import heroImg from '../assets/hero.png';
-import rickmorty from '../assets/1.jpeg';
-import Link from 'next/link';
-import Loading from '../components/Loading';
 import DataNotFound from '../components/DataNotFound';
+import CharacterCard from '../components/CharacterCard';
 
-export default function Home() {
-  const arr = [
-    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-  ];
+interface HomeProps {
+  info: {
+    count: number;
+    pages: number;
+    next: string | null;
+    prev: string | null;
+  };
+  characters: {
+    id: number;
+    name: string;
+    status: string;
+    species: string;
+    gender: string;
+    origin: string;
+    location: string;
+    image: string;
+    episode: number;
+  }[];
+}
+
+export default function Home({ info, characters }: HomeProps) {
+  const [userSearch, setUserSearch] = useState<string>('');
+  const [characterNotFound, setCharacterNotFound] = useState<boolean>(false);
+  const [filteredCharacters, setFilteredCharacters] = useState(characters);
+
+  useEffect(() => {
+    async function getSearchedCharacter() {
+      if (userSearch) {
+        try {
+          const { data } = await api.get(`character/?name=${userSearch}`);
+          setCharacterNotFound(false);
+
+          return data.results;
+        } catch (err) {
+          setCharacterNotFound(true);
+
+          console.log(err.message);
+          return null;
+        }
+      } else {
+        setCharacterNotFound(false);
+        setFilteredCharacters(characters);
+        return null;
+      }
+    }
+
+    getSearchedCharacter().then((characterFound) => {
+      if (characterFound) {
+        setFilteredCharacters(characterFound);
+      }
+    });
+  }, [userSearch]);
 
   return (
     <>
@@ -18,7 +70,7 @@ export default function Home() {
         <title>Rick & Morty | Guia Definitivo</title>
       </Head>
 
-      <div className="mx-auto px-4 mb-5 flex flex-col items-center justify-center w-full gap-1 bg-gray-900">
+      <div className="mx-auto px-4 mb-5 flex flex-col items-center justify-center w-full gap-1 bg-gray-900 ">
         <section className="flex items-center justify-center flex-wrap gap-6 text-center w-full rounded-lg">
           <Image
             src={heroImg}
@@ -26,7 +78,7 @@ export default function Home() {
             height={440}
             alt="Rick e Morty saindo de um portal verde"
           />
-          <h1 className="font-cursive text-4xl md:text-5xl lg:text-6xl text-cyan-300 relative">
+          <h1 className="font-cursive text-4xl md:text-5xl lg:text-6xl text-cyan-400">
             Guia definitivo <br /> de Personagens
           </h1>
         </section>
@@ -41,6 +93,8 @@ export default function Home() {
             </label>
             <input
               id="searchCharacter"
+              onChange={(e) => setUserSearch(e.target.value)}
+              value={userSearch}
               type="text"
               placeholder="Ex: Rick"
               className="mx-auto w-11/12 max-w-md bg-gray-800 rounded font-cursive border-b-2 text-center border-lime-300 text-cyan-400 text-2xl p-2 focus:outline-none focus:shadow focus:shadow-lime-400"
@@ -48,32 +102,19 @@ export default function Home() {
           </div>
 
           <div className="mx-auto w-11/12 lg:w-full py-2 px-2 bg-gradient-to-br from-lime-400 to-cyan-400 mt-20 rounded">
-            <section className="w-full flex flex-wrap gap-4 items-center justify-center lg:justify-between flex-1 px-4 p-4 h-80 overflow-auto bg-gray-900">
-              {arr.map((item) => {
-                return (
-                  <Link key={item} href={`/character/${item}`}>
-                    <a className="bg-cyan-900 w-60 h-72 rounded text-zinc-200 font-bold flex flex-col items-center justify-between py-2 px-4 cursor-pointer">
-                      <h1 className="font-cursive text-3xl text-white">
-                        Rick Sanchez
-                      </h1>
-
-                      <Image
-                        src={rickmorty}
-                        alt=""
-                        width={120}
-                        height={120}
-                        className="rounded object-cover object-center "
-                      />
-
-                      <footer className="text-center">
-                        <span className="block">Alive</span>
-                        <span className="block">Human</span>
-                        <span className="block">Male</span>
-                      </footer>
-                    </a>
-                  </Link>
-                );
-              })}
+            <section
+              className="w-full flex flex-wrap gap-6 items-center justify-center flex-1 px-4 p-4 h-[20.975rem]
+            overflow-auto bg-gray-900"
+            >
+              {characterNotFound ? (
+                <DataNotFound />
+              ) : (
+                filteredCharacters.map((character) => {
+                  return (
+                    <CharacterCard key={character.id} character={character} />
+                  );
+                })
+              )}
             </section>
           </div>
         </main>
@@ -90,3 +131,30 @@ export default function Home() {
     </>
   );
 }
+
+export const getStaticProps: GetStaticProps = async () => {
+  const { data } = await api.get('/character');
+  const { info, results } = data;
+
+  const characters = results.map((result: any) => {
+    return {
+      id: result.id,
+      name: result.name,
+      status: result.status,
+      species: result.species,
+      gender: result.gender,
+      origin: result.origin.name,
+      location: result.location.name,
+      image: result.image,
+      episodes: result.episode.length,
+    };
+  });
+
+  return {
+    props: {
+      info,
+      characters,
+    },
+    revalidate: 60 * 60 * 2,
+  };
+};
