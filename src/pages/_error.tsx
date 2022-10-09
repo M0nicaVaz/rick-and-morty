@@ -1,8 +1,8 @@
-import notFoundImg from '../assets/rm404.png';
+import somethingWrong from '../assets/error500.png';
 import Image from 'next/future/image';
 import Link from 'next/link';
 
-export default function Custom404() {
+export default function Custom500() {
   return (
     <>
       <Link href="/">
@@ -12,10 +12,10 @@ export default function Custom404() {
       </Link>
 
       <div className="w-full h-screen grid place-content-center">
-        <div className="flex flex-wrap text-2xl lg:text-4xl items-center justify-center">
-          <Image src={notFoundImg} alt="" width={480} height={480} />
+        <div className="flex flex-col text-2xl lg:text-4xl items-center justify-center">
+          <Image src={somethingWrong} alt="" width={480} height={480} />
           <h1 className="font-cursive text-cyan-100 mx-auto">
-            404 | Não há nada para ver aqui!
+            500 | Algo deu errado!
           </h1>
         </div>
       </div>
