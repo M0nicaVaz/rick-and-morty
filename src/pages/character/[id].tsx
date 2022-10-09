@@ -44,7 +44,13 @@ export default function Character({ character }: CharacterProps) {
       </Link>
 
       <div className="w-full p-4 pb-6 gap-10">
-        <Image src={logoImg} alt="" width={400} className="mx-auto" />
+        <Image
+          src={logoImg}
+          alt="Rick and Morty"
+          width={400}
+          priority={true}
+          className="mx-auto"
+        />
 
         <main className="flex flex-wrap items-center justify-center gap-10 lg:gap-20 p-4">
           <Image

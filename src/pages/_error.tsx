@@ -13,7 +13,7 @@ export default function Custom500() {
 
       <div className="w-full h-screen grid place-content-center">
         <div className="flex flex-col text-2xl lg:text-4xl items-center justify-center">
-          <Image src={somethingWrong} alt="" width={480} height={480} />
+          <Image src={somethingWrong} alt="" width={440} height={440} />
           <h1 className="font-cursive text-cyan-100 mx-auto">
             500 | Algo deu errado!
           </h1>

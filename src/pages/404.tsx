@@ -13,7 +13,13 @@ export default function Custom404() {
 
       <div className="w-full h-screen grid place-content-center">
         <div className="flex flex-wrap text-2xl lg:text-4xl items-center justify-center">
-          <Image src={notFoundImg} alt="" width={480} height={480} />
+          <Image
+            src={notFoundImg}
+            alt=""
+            width={480}
+            height={480}
+            priority={true}
+          />
           <h1 className="font-cursive text-cyan-100 mx-auto">
             404 | Não há nada para ver aqui!
           </h1>
