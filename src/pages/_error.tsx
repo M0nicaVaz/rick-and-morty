@@ -1,13 +1,17 @@
 import somethingWrong from '../assets/error500.png';
 import Image from 'next/future/image';
 import Link from 'next/link';
+import { ArrowLeft } from 'phosphor-react';
 
 export default function Custom500() {
   return (
     <>
       <Link href="/">
-        <a className="text-lime-200 fixed top-4 left-4 cursor-pointer hover:text-cyan-300 bg-gray-900 rounded p-1">
-          Voltar
+        <a
+          title="Voltar"
+          className="text-lime-200 fixed top-4 left-4 cursor-pointer hover:text-cyan-300 bg-gray-900/90 z-50 rounded py-1 px-2 "
+        >
+          <ArrowLeft size={22} />
         </a>
       </Link>
 
