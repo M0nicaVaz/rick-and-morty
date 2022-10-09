@@ -1,7 +1,9 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 /* eslint-disable react-hooks/exhaustive-deps */
 import Link from 'next/link';
 import { GetStaticProps } from 'next';
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 
 import Head from 'next/head';
 import Image from 'next/future/image';
@@ -10,6 +12,8 @@ import { api } from '../services/api';
 import heroImg from '../assets/hero.png';
 import DataNotFound from '../components/DataNotFound';
 import CharacterCard from '../components/CharacterCard';
+import { ArrowLeft, ArrowRight, HouseSimple } from 'phosphor-react';
+import usePagination from '../hooks/usePagination';
 
 interface HomeProps {
   info: {
@@ -24,10 +28,7 @@ interface HomeProps {
     status: string;
     species: string;
     gender: string;
-    origin: string;
-    location: string;
     image: string;
-    episode: number;
   }[];
 }
 
@@ -35,6 +36,32 @@ export default function Home({ info, characters }: HomeProps) {
   const [userSearch, setUserSearch] = useState<string>('');
   const [characterNotFound, setCharacterNotFound] = useState<boolean>(false);
   const [filteredCharacters, setFilteredCharacters] = useState(characters);
+  const [page, setPage] = useState({
+    prevPage: info.prev,
+    nextPage: info.next,
+  });
+
+  function handleResetPage() {
+    setFilteredCharacters(characters);
+    setPage({ prevPage: null, nextPage: info.next });
+  }
+
+  async function handlePrevPage() {
+    const { updatedCharacters, prev, next } = await usePagination(
+      page.prevPage
+    );
+
+    setPage({ prevPage: prev, nextPage: next });
+    setFilteredCharacters(updatedCharacters);
+  }
+
+  async function handleNextPage() {
+    const { updatedCharacters, prev, next } = await usePagination(
+      page.nextPage
+    );
+    setPage({ prevPage: prev, nextPage: next });
+    setFilteredCharacters(updatedCharacters);
+  }
 
   useEffect(() => {
     async function getSearchedCharacter() {
@@ -72,12 +99,18 @@ export default function Home({ info, characters }: HomeProps) {
 
       <div className="mx-auto px-4 mb-5 flex flex-col items-center justify-center w-full gap-1 bg-gray-900 ">
         <section className="flex items-center justify-center flex-wrap gap-6 text-center w-full rounded-lg">
-          <Image
-            src={heroImg}
-            width={440}
-            height={440}
-            alt="Rick e Morty saindo de um portal verde"
-          />
+          <motion.div
+            initial={{ scale: 0, rotate: -180 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+          >
+            <Image
+              src={heroImg}
+              width={440}
+              height={440}
+              alt="Rick e Morty saindo de um portal verde"
+            />
+          </motion.div>
           <h1 className="font-cursive text-4xl md:text-5xl lg:text-6xl text-cyan-400">
             Guia definitivo <br /> de Personagens
           </h1>
@@ -120,11 +153,28 @@ export default function Home({ info, characters }: HomeProps) {
         </main>
 
         <div className="flex gap-4">
-          <button className="text-zinc-200 text-md hover:text-lime-300">
-            Anterior
+          <button
+            title="Anterior"
+            onClick={handlePrevPage}
+            disabled={!page.prevPage}
+            className="text-lime-300 hover:text-lime-500 disabled:cursor-not-allowed"
+          >
+            <ArrowLeft size={22} />
           </button>
-          <button className="text-zinc-200 text-md hover:text-lime-300">
-            Próxima
+          <button
+            title="Início"
+            onClick={handleResetPage}
+            className="text-cyan-300 text-md hover:text-cyan-500"
+          >
+            <HouseSimple size={20} />
+          </button>
+          <button
+            title="Próxima"
+            onClick={handleNextPage}
+            disabled={!page.nextPage}
+            className="text-lime-300 hover:text-lime-500 disabled:cursor-not-allowed"
+          >
+            <ArrowRight size={22} />
           </button>
         </div>
       </div>
@@ -143,10 +193,7 @@ export const getStaticProps: GetStaticProps = async () => {
       status: result.status,
       species: result.species,
       gender: result.gender,
-      origin: result.origin.name,
-      location: result.location.name,
       image: result.image,
-      episodes: result.episode.length,
     };
   });
 
@@ -155,6 +202,6 @@ export const getStaticProps: GetStaticProps = async () => {
       info,
       characters,
     },
-    revalidate: 60 * 60 * 2,
+    revalidate: 60 * 60 * 12,
   };
 };
