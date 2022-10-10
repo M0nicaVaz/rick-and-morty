@@ -11,17 +11,7 @@ import { ArrowLeft, Translate } from 'phosphor-react';
 import CharacterInfo from '../../components/CharacterInfo';
 
 interface CharacterProps {
-  character: {
-    id: number;
-    name: string;
-    status: string;
-    species: string;
-    gender: string;
-    origin: string;
-    location: string;
-    image: string;
-    episode: number;
-  };
+  character: Character;
 }
 
 export default function Character({ character }: CharacterProps) {

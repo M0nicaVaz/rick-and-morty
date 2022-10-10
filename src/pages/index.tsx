@@ -1,9 +1,7 @@
-/* eslint-disable react-hooks/rules-of-hooks */
-/* eslint-disable react-hooks/exhaustive-deps */
-import Link from 'next/link';
 import { GetStaticProps } from 'next';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { ArrowLeft, ArrowRight, HouseSimple } from 'phosphor-react';
 
 import Head from 'next/head';
 import Image from 'next/future/image';
@@ -12,55 +10,44 @@ import { api } from '../services/api';
 import heroImg from '../assets/hero.png';
 import DataNotFound from '../components/DataNotFound';
 import CharacterCard from '../components/CharacterCard';
-import { ArrowLeft, ArrowRight, HouseSimple } from 'phosphor-react';
 import usePagination from '../hooks/usePagination';
 
 interface HomeProps {
-  info: {
-    count: number;
-    pages: number;
-    next: string | null;
-    prev: string | null;
-  };
-  characters: {
-    id: number;
-    name: string;
-    status: string;
-    species: string;
-    gender: string;
-    image: string;
-  }[];
+  characters: Character[];
 }
 
-export default function Home({ info, characters }: HomeProps) {
+export default function Home({ characters }: HomeProps) {
   const [userSearch, setUserSearch] = useState<string>('');
   const [characterNotFound, setCharacterNotFound] = useState<boolean>(false);
   const [filteredCharacters, setFilteredCharacters] = useState(characters);
-  const [page, setPage] = useState({
-    prevPage: info.prev,
-    nextPage: info.next,
-  });
 
-  function handleResetPage() {
-    setFilteredCharacters(characters);
-    setPage({ prevPage: null, nextPage: info.next });
+  const { nextPage, prevPage, resetPage, page } = usePagination();
+
+  async function handleNextPage() {
+    const updatedCharacters = await nextPage();
+
+    if (updatedCharacters) {
+      setFilteredCharacters(updatedCharacters);
+    }
+
+    return;
   }
 
   async function handlePrevPage() {
-    const { updatedCharacters, prev, next } = await usePagination(
-      page.prevPage
-    );
+    const updatedCharacters = await prevPage();
 
-    setPage({ prevPage: prev, nextPage: next });
-    setFilteredCharacters(updatedCharacters);
+    if (updatedCharacters) {
+      setFilteredCharacters(updatedCharacters);
+    }
+
+    return;
   }
 
-  async function handleNextPage() {
-    const { updatedCharacters, prev, next } = await usePagination(
-      page.nextPage
-    );
-    setPage({ prevPage: prev, nextPage: next });
-    setFilteredCharacters(updatedCharacters);
+  function handleResetPage() {
+    resetPage();
+    setFilteredCharacters(characters);
+
+    return;
   }
 
   useEffect(() => {
@@ -109,6 +96,7 @@ export default function Home({ info, characters }: HomeProps) {
               width={440}
               height={440}
               alt="Rick e Morty saindo de um portal verde"
+              priority={true}
             />
           </motion.div>
           <h1 className="font-cursive text-4xl md:text-5xl lg:text-6xl text-cyan-400">
@@ -152,7 +140,7 @@ export default function Home({ info, characters }: HomeProps) {
           </div>
         </main>
 
-        <div className="flex gap-4">
+        <footer className="flex gap-4">
           <button
             title="Anterior"
             onClick={handlePrevPage}
@@ -176,7 +164,7 @@ export default function Home({ info, characters }: HomeProps) {
           >
             <ArrowRight size={22} />
           </button>
-        </div>
+        </footer>
       </div>
     </>
   );
@@ -186,7 +174,7 @@ export const getStaticProps: GetStaticProps = async () => {
   const { data } = await api.get('/character');
   const { info, results } = data;
 
-  const characters = results.map((result: any) => {
+  const characters = results.map((result: Character) => {
     return {
       id: result.id,
       name: result.name,
