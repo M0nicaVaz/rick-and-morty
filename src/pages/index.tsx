@@ -147,9 +147,7 @@ export default function Home({ info, characters }: HomeProps) {
         </main>
 
         <footer className="flex gap-2 items-center justify-center">
-          <span className="text-xs text-lime-100/60">...</span>
-
-          <div className="flex flex-col items-center">
+          <div className="flex flex-col items-center ">
             <button
               title="Anterior"
               onClick={handlePrevPage}
@@ -169,11 +167,8 @@ export default function Home({ info, characters }: HomeProps) {
               onClick={handleResetPage}
               className="text-cyan-300 text-md hover:text-cyan-500"
             >
-              <HouseSimple size={22} />
+              <HouseSimple size={24} />
             </button>
-            <span className="text-sm text-cyan-100/80">
-              {page.currentPageNumber}
-            </span>
           </div>
 
           <div className="flex flex-col items-center">
@@ -189,7 +184,7 @@ export default function Home({ info, characters }: HomeProps) {
               {page.currentPageNumber + 1}
             </span>
           </div>
-          <span className="text-xs text-lime-100/60">...{info.pages} </span>
+          <span className="text-xs text-lime-100/60">{info.pages} </span>
         </footer>
       </div>
     </>

@@ -63,11 +63,14 @@ export default function usePagination() {
       setUpdatedCharacters(updatedCharacters);
     }
 
-    const current = Number(
-      prev.replace('https://rickandmortyapi.com/api/character?page=', '')
-    );
-
-    setPage({ prevPage: prev, nextPage: next, currentPageNumber: current + 1 });
+    const current = prev
+      ? prev.replace('https://rickandmortyapi.com/api/character?page=', '')
+      : 0;
+    setPage({
+      prevPage: prev,
+      nextPage: next,
+      currentPageNumber: Number(current) + 1,
+    });
 
     return { updatedCharacters };
   }
@@ -81,11 +84,15 @@ export default function usePagination() {
       setUpdatedCharacters(updatedCharacters);
     }
 
-    const current = Number(
-      next.replace('https://rickandmortyapi.com/api/character?page=', '')
-    );
+    const current = next
+      ? next.replace('https://rickandmortyapi.com/api/character?page=', '')
+      : '';
 
-    setPage({ prevPage: prev, nextPage: next, currentPageNumber: current - 1 });
+    setPage({
+      prevPage: prev,
+      nextPage: next,
+      currentPageNumber: Number(current) - 1,
+    });
 
     return { updatedCharacters };
   }
