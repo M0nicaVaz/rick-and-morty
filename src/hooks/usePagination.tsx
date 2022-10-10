@@ -4,15 +4,18 @@ import { useState } from 'react';
 interface Page {
   prevPage: null | string;
   nextPage: null | string;
+  currentPageNumber: number;
 }
 
 export default function usePagination() {
   const initialNextPageUrl = 'https://rickandmortyapi.com/api/character?page=2';
 
   const [updatedCharacters, setUpdatedCharacters] = useState<Character[]>([]);
+
   const [page, setPage] = useState<Page>({
     prevPage: null,
     nextPage: initialNextPageUrl,
+    currentPageNumber: 1,
   });
 
   async function getPaginationData(pageState: string | null) {
@@ -44,7 +47,11 @@ export default function usePagination() {
 
   function resetPage() {
     setUpdatedCharacters([]);
-    setPage({ prevPage: null, nextPage: initialNextPageUrl });
+    setPage({
+      prevPage: null,
+      nextPage: initialNextPageUrl,
+      currentPageNumber: 1,
+    });
   }
 
   async function prevPage() {
@@ -56,9 +63,13 @@ export default function usePagination() {
       setUpdatedCharacters(updatedCharacters);
     }
 
-    setPage({ prevPage: prev, nextPage: next });
+    const current = Number(
+      prev.replace('https://rickandmortyapi.com/api/character?page=', '')
+    );
 
-    return updatedCharacters;
+    setPage({ prevPage: prev, nextPage: next, currentPageNumber: current + 1 });
+
+    return { updatedCharacters };
   }
 
   async function nextPage() {
@@ -70,9 +81,13 @@ export default function usePagination() {
       setUpdatedCharacters(updatedCharacters);
     }
 
-    setPage({ prevPage: prev, nextPage: next });
+    const current = Number(
+      next.replace('https://rickandmortyapi.com/api/character?page=', '')
+    );
 
-    return updatedCharacters;
+    setPage({ prevPage: prev, nextPage: next, currentPageNumber: current - 1 });
+
+    return { updatedCharacters };
   }
 
   return {

@@ -13,10 +13,16 @@ import CharacterCard from '../components/CharacterCard';
 import usePagination from '../hooks/usePagination';
 
 interface HomeProps {
+  info: {
+    count: number;
+    pages: number;
+    next: string | null;
+    prev: string | null;
+  };
   characters: Character[];
 }
 
-export default function Home({ characters }: HomeProps) {
+export default function Home({ info, characters }: HomeProps) {
   const [userSearch, setUserSearch] = useState<string>('');
   const [characterNotFound, setCharacterNotFound] = useState<boolean>(false);
   const [filteredCharacters, setFilteredCharacters] = useState(characters);
@@ -24,7 +30,7 @@ export default function Home({ characters }: HomeProps) {
   const { nextPage, prevPage, resetPage, page } = usePagination();
 
   async function handleNextPage() {
-    const updatedCharacters = await nextPage();
+    const { updatedCharacters } = await nextPage();
 
     if (updatedCharacters) {
       setFilteredCharacters(updatedCharacters);
@@ -34,7 +40,7 @@ export default function Home({ characters }: HomeProps) {
   }
 
   async function handlePrevPage() {
-    const updatedCharacters = await prevPage();
+    const { updatedCharacters } = await prevPage();
 
     if (updatedCharacters) {
       setFilteredCharacters(updatedCharacters);
@@ -140,30 +146,50 @@ export default function Home({ characters }: HomeProps) {
           </div>
         </main>
 
-        <footer className="flex gap-4">
-          <button
-            title="Anterior"
-            onClick={handlePrevPage}
-            disabled={!page.prevPage}
-            className="text-lime-300 hover:text-lime-500 disabled:cursor-not-allowed"
-          >
-            <ArrowLeft size={22} />
-          </button>
-          <button
-            title="Início"
-            onClick={handleResetPage}
-            className="text-cyan-300 text-md hover:text-cyan-500"
-          >
-            <HouseSimple size={20} />
-          </button>
-          <button
-            title="Próxima"
-            onClick={handleNextPage}
-            disabled={!page.nextPage}
-            className="text-lime-300 hover:text-lime-500 disabled:cursor-not-allowed"
-          >
-            <ArrowRight size={22} />
-          </button>
+        <footer className="flex gap-2 items-center justify-center">
+          <span className="text-xs text-lime-100/60">...</span>
+
+          <div className="flex flex-col items-center">
+            <button
+              title="Anterior"
+              onClick={handlePrevPage}
+              disabled={!page.prevPage}
+              className="text-lime-300 hover:text-lime-500 disabled:cursor-not-allowed"
+            >
+              <ArrowLeft size={22} />
+            </button>
+            <span className="text-xs text-lime-100/80">
+              {page.currentPageNumber - 1}
+            </span>
+          </div>
+
+          <div className="flex flex-col items-center">
+            <button
+              title="Início"
+              onClick={handleResetPage}
+              className="text-cyan-300 text-md hover:text-cyan-500"
+            >
+              <HouseSimple size={22} />
+            </button>
+            <span className="text-sm text-cyan-100/80">
+              {page.currentPageNumber}
+            </span>
+          </div>
+
+          <div className="flex flex-col items-center">
+            <button
+              title="Próxima"
+              onClick={handleNextPage}
+              disabled={!page.nextPage}
+              className="text-lime-300 hover:text-lime-500 disabled:cursor-not-allowed"
+            >
+              <ArrowRight size={22} />
+            </button>
+            <span className="text-xs text-lime-100/80">
+              {page.currentPageNumber + 1}
+            </span>
+          </div>
+          <span className="text-xs text-lime-100/60">...{info.pages} </span>
         </footer>
       </div>
     </>
